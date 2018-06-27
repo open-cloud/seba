@@ -1,0 +1,11 @@
+# NOTE - do not put any .md files or directories that contain .md files that
+# gitbook needs to access in this file, or they won't be shown - upstream bugs:
+# https://github.com/GitbookIO/gitbook/issues/931
+# https://github.com/GitbookIO/gitbook/issues/1845
+
+npm-debug.log
+node_modules
+_book
+xos/_book
+venv-xosdocs
+.DS_Store

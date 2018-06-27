@@ -1,0 +1,14 @@
+# local chart repo
+chart_repo
+
+# lockfiles for requirements.yaml for dependent charts
+requirements.lock
+
+# ignore dependent chart dirs
+xos-core/charts
+voltha/charts
+xos-core/charts
+xos-profiles/rcord-lite/charts
+xos-profiles/mcord/charts
+xos-profiles/base-openstack/charts
+xos-profiles/container-vnf/charts

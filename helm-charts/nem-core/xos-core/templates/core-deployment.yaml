@@ -1,0 +1,81 @@
+---
+# Copyright 2017-present Open Networking Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: xos-core
+  labels:
+    {{- include "xos-core.release_labels" . | indent 4 }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: xos-core
+    spec:
+      containers:
+        - name: xos-core
+          image: {{ .Values.xos_coreImage | quote }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          command: ["/bin/bash", "-c", "cd coreapi; ./start_coreapi.sh"]
+          ports:
+            - containerPort: 50051
+              port: 50051
+              protocol: TCP
+            - containerPort: 50055
+              port: 50055
+              protocol: TCP
+          volumeMounts:
+            - name: coreapi-volume
+              mountPath: /opt/cord_profile
+              readOnly: true
+            - name: certchain-volume
+              mountPath: /usr/local/share/ca-certificates/local_certs.crt
+              subPath: config/ca_cert_chain.pem
+            - name: xos-core-config
+              mountPath: /opt/xos/xos_config.yaml
+              subPath: config/xos_config.yaml
+            - name: initial-data-config
+              mountPath: /opt/xos/core/migrations/initial_data.yaml
+              subPath: migrations/initial_data.yaml
+      volumes:
+        - name: coreapi-volume
+          secret:
+            secretName: coreapi-cert-secret
+            items:
+              - key: tls.crt
+                path: core_api_cert.pem
+              - key: tls.key
+                path: core_api_key.pem
+        - name: certchain-volume
+          configMap:
+            name: ca-certificates
+            items:
+              - key: chain
+                path: config/ca_cert_chain.pem
+        - name: xos-core-config
+          configMap:
+            name: xos-core
+            items:
+              - key: config
+                path: config/xos_config.yaml
+        - name: initial-data-config
+          configMap:
+            name: xos-initial-data
+            items:
+              - key: config
+                path: migrations/initial_data.yaml
+

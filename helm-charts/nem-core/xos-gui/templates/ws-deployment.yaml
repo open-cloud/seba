@@ -1,0 +1,48 @@
+---
+# Copyright 2017-present Open Networking Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: xos-ws
+  labels:
+    {{- include "xos-gui.release_labels" . | indent 4 }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: xos-ws
+    spec:
+      containers:
+        - name: xos-ws
+          image: {{ .Values.xos_wsImage | quote }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          command: ["npm", "start", "--", "--config", "gateway-config.yml"]
+          ports:
+            - containerPort: 3000
+              port: 3000
+              protocol: TCP
+          volumeMounts:
+            - name: gateway-config
+              mountPath: /var/www/src/config/gateway-config.yml
+              subPath: config/gateway-config.yml
+      volumes:
+        - name: gateway-config
+          configMap:
+            name: xos-ws
+            items:
+              - key: config
+                path: config/gateway-config.yml
